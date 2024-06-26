@@ -1,14 +1,14 @@
 import express from 'express';
 import cors from 'cors';
 import pino from 'pino-http';
-
+import 'dotenv/config';
 
 
 export const setupServer = () => {
 
 const app = express();
 
-const PORT = 3000;
+const { PORT } = process.env;
 
 const logger = pino({
         transport: {
@@ -50,5 +50,5 @@ app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
 
 
 
- 
+
 
