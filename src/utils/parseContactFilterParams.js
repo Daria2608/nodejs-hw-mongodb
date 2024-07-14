@@ -16,7 +16,7 @@ const parseContactFilterParams = ({ contactType, isFavourite }) => {
     const parsedIsFavourite = parseBoolian(isFavourite);
 
     return {
-        type: parsedType,
+        contactType: parsedType,
         isFavourite: parsedIsFavourite,
     };
  };

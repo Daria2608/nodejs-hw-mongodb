@@ -4,15 +4,18 @@ import calcPaginationData from "../utils/calcPaginationData.js";
 export const getContacts = async ({ filter, page, perPage, sortBy, sortOrder }) => {
     const skip = (page - 1) * perPage;
     const request = Contact.find();
-    if (filter.type) {
+
+    if (filter.contactType !== null) {
         request.where('contactType').equals(filter.contactType);
     }
-    if (filter.isFavourite) {
+
+    if (filter.isFavourite !== undefined) {
         request.where('isFavourite').equals(filter.isFavourite);
     }
 
-    const data = await request.skip(skip).limit(perPage).sort({[sortBy] : sortOrder});
     const totalItems = await Contact.find().merge(request).countDocuments();
+    const data = await request.skip(skip).limit(perPage).sort({[sortBy] : sortOrder}).exec();
+
     const { totalPages, hasNextPage, hasPreviousPage } = calcPaginationData({total: totalItems, page, perPage});
 
     return {
