@@ -1,5 +1,6 @@
 export const typeList = ["work", "home", "personal"];
 
+
 export const fieldList = [
     '_id',
     'name',
@@ -10,4 +11,5 @@ export const fieldList = [
     'createdAt',
     'updatedAt',
 ];
+
 

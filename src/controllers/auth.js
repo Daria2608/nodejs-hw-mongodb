@@ -3,6 +3,8 @@ import { signin, signup } from "../services/auth.js";
 import { createSession, findSession, deleteSession } from "../services/auth.js";
 import User from "../db/models/User.js";
 import createHttpError from "http-errors";
+import { requestResetToken } from '../services/auth.js';
+import { resetPassword } from '../services/auth.js';
 
 
 const setupResponseSession = (res, { refreshToken, refreshTokenValidUntil, _id }) => {
@@ -91,3 +93,33 @@ export const logoutController = async (req, res) => {
 
     res.status(204).send();
 };
+
+
+export const requestResetEmailController = async (req, res) => {
+    await requestResetToken(req.body.email);
+    console.log(req.body.email);
+  res.json({
+    message: 'Reset password email was successfully sent!',
+    status: 200,
+    data: {},
+  });
+};
+
+export const resetPasswordController = async (req, res) => {
+
+    await resetPassword(req.body);
+    const { sessionID } = req.cookies;
+
+    await deleteSession({ _id: sessionID });
+
+    res.clearCookie('sessionID');
+    res.clearCookie('refreshToken');
+
+  res.json({
+    message: 'Password was successfully reset!',
+    status: 200,
+    data: {},
+  });
+
+};
+
