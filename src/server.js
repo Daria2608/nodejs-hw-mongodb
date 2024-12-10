@@ -1,8 +1,13 @@
 import express from 'express';
 import cors from 'cors';
 import pino from 'pino-http';
+import cookieParser from 'cookie-parser';
 import env from './utils/env.js';
-import { getContacts, getContactById } from './services/contacts.js';
+import contactsRouter from './routers/contacts.js';
+import authRouter from './routers/auth.js';
+import notFoundHandler from './middlewares/notFoundHandler.js';
+import errorHandler from './middlewares/errorHandler.js';
+  import { UPLOAD_DIR } from './constants/index.js';
 
 const port = env('PORT', '3000');
 
@@ -20,59 +25,21 @@ app.use(logger);
 
 app.use(cors());
 
+
+app.use(express.json());
+app.use(cookieParser());
+app.use('/auth', authRouter);
+app.use('/contacts', contactsRouter);
+app.use('/uploads', express.static(UPLOAD_DIR));
+
 app.use((req, res, next) => {
     console.log('1');
     next();
 });
 
-app.get('/contacts', async (req, res) => {
-    const data = await getContacts();
-    res.json(
-        {
-            status: 200,
-            data,
-            message: 'Successfully found contacts!',
-        }
-    );
-});
+app.use(notFoundHandler);
 
-    app.get('/contacts/:contactId', async (req, res) => {
-        try {
-
-        const { contactId } = req.params;
-        const data = await getContactById(contactId);
-
-        if (!data) {
-            return res.status(404).json({
-                 message: `Contact with ${contactId} not found`
-            });
-        };
-
-     res.json(
-        {
-            status: 200,
-            data,
-            message: `Successfully found contact with id ${contactId}!`,
-        }
-    );
-        } catch (error) {
-             if (error.message.includes("Cast to ObjectId failed")) {
-                error.status = 404;
-            }
-            const { status = 500 } = error;
-            res.status(status).json({
-                message: error.message
-            });
-        }
-
- });
-
-    app.use((req, res) => {
-    res.status(404).json({
-  message: 'Not found',
-}
-);
-});
+app.use(errorHandler);
 
 app.listen(port, () => console.log(`Server is running on port ${port}`));
 };
