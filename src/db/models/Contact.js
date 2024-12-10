@@ -1,4 +1,8 @@
-import { Schema,  model } from "mongoose";
+import { Schema, model } from "mongoose";
+
+import { mongooseSaveError, setUpdateSettings } from "./hooks.js";
+
+import { typeList } from "../../constants/constants.js";
 
 const contactSchema = new Schema({
     name: {
@@ -19,14 +23,28 @@ const contactSchema = new Schema({
     },
      contactType: {
         type: String,
-        enum: ["work", "home", "personal"],
+        enum: typeList,
         default: "personal",
         requried: true,
+    },
+    userId: {
+        type: Schema.Types.ObjectId,
+        ref: "user",
+        required: true,
+    },
+    photo: {
+        type: String
     },
 },{
     timestamps: true,
     versionKey: false,
 });
+
+contactSchema.post('save', mongooseSaveError);
+
+contactSchema.pre('findOneAndUpdate', setUpdateSettings);
+
+contactSchema.post('findOneAndUpdate', mongooseSaveError);
 
 const Contact = model('contact', contactSchema);
 
